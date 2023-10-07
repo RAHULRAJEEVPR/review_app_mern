@@ -6,6 +6,8 @@ const dbConfig = require("./config/dbConfig")
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
+const reviewRoute=require("./routes/reviewRoute")
+
 app.use(
     cors({
       origin: [process.env.BASE_URL],
@@ -13,6 +15,7 @@ app.use(
       credentials: true,
     })
   );
+  app.use("/",reviewRoute)
 
   app.listen(3000,()=>{
     console.log('server started')
