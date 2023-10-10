@@ -3,62 +3,38 @@ import { useFormik } from "formik";
 import Select from "react-select";
 import logo from "../assets/logo.svg";
 import axios from "axios";
-import {toast} from "react-toastify"
-
+import { toast } from "react-toastify";
+import reviewSchema from "../schemas/reviewSchema";
+import { rating, usageOptions, goalOptions } from "../constants/constant";
 export default function ReviewPage() {
-  const rating = [
-    { value: 1, label: "Very Bad" },
-    { value: 2, label: "Bad" },
-    { value: 3, label: "Not Good" },
-    { value: 4, label: "Okay" },
-    { value: 5, label: "Good" },
-    { value: 6, label: "Very Good" },
-    { value: 7, label: "Excellent" },
-    { value: 8, label: "Outstanding" },
-    { value: 9, label: "Exceptional" },
-    { value: 10, label: "Perfect" },
-  ];
+  
+  const handleSubmit = async (values) => {
+    try {
+      const response = await axios.post("http://localhost:3000/addReview", {
+        ...values,
+      });
+      console.log("Response:", response);
+    } catch (error) {
+      toast.error("Server down please try after some time ");
+      console.error("Error:", error);
+    }
+  };
 
-  const usageOptions = [
-    { value: "Daily", label: "Daily" },
-    { value: "Weekly", label: "Weekly" },
-    { value: "Monthly", label: "Monthly" },
-    { value: "Rarely", label: "Rarely" },
-  ];
-  const goalOptions = [
-    { value: "Information", label: "Information" },
-    { value: "Chat", label: "Chat" },
-    { value: "Entertainment", label: "Entertainment" },
-    { value: "Buy", label: "Buy" },
-    { value: "Socialize", label: "Socialize" },
-    { value: "Other", label: "Other" },
-  ];
   const formik = useFormik({
     initialValues: {
       usage: usageOptions[0],
       goals: [],
       rating: null,
-      birthday: new Date().toISOString().split("T")[0],
+      birthday: "",
     },
+    validationSchema: reviewSchema,
+    onSubmit: handleSubmit,
   });
+
   const handleRatingClick = (selectedRating) => {
     formik.setFieldValue("rating", selectedRating);
   };
-  console.log(formik.values);
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    try {
-      const response = await axios.post("http://localhost:3000/addReview", {
-        ...formik.values,
-      });
-      console.log('Response:', response);
-    } catch (error) {
-      toast.error("Server down please try after some time ")
-      console.error('Error:', error);
-    }
-  };
-
+  console.log(formik.errors);
   return (
     <div className="w-full h-screen">
       <div className="flex justify-center  ">
@@ -67,11 +43,14 @@ export default function ReviewPage() {
             <img className="w-48" src={logo} alt="" />
           </div>
           <div className="mt-6">
-            <h1 style={{ color: "#F59F00" }} className="md:text-2xl text-xl font-serif font-semibold">
+            <h1
+              style={{ color: "#F59F00" }}
+              className="md:text-2xl text-xl font-serif font-semibold"
+            >
               Share Your Thoughts: Rate & Review Our App!
             </h1>
           </div>
-          <form action="" onSubmit={handleSubmit}>
+          <form action="" onSubmit={formik.handleSubmit}>
             <div className="flex flex-col mt-7 ">
               <label className="md:text-lg  font-bold  " htmlFor="usage">
                 How often do you use this app?
@@ -97,6 +76,9 @@ export default function ReviewPage() {
                   formik.setFieldValue("goals", selectedOptions)
                 }
               />
+              {formik.errors.goals && formik.touched.goals && (
+                <p className="text-xs text-red-600">{formik.errors.goals}</p>
+              )}
             </div>
             <div className="mt-4">
               <h1 className=" md:text-lg font-bold  ">Rate User Experience </h1>
@@ -120,6 +102,9 @@ export default function ReviewPage() {
                 <p>{rating[0].label}</p>
                 <p>{rating[rating.length - 1].label}</p>
               </div>
+              {formik.errors.rating && formik.touched.rating && (
+                <p className="text-xs text-red-600">{formik.errors.rating}</p>
+              )}
             </div>
             <div className="mt-4">
               <label className="md:text-lg font-bold  " htmlFor="suggestion ">
@@ -133,9 +118,14 @@ export default function ReviewPage() {
                 value={formik.values.suggestion}
                 onChange={formik.handleChange}
               />
+              {formik.errors.suggestion && formik.touched.suggestion && (
+                <p className="text-xs text-red-600">
+                  {formik.errors.suggestion}
+                </p>
+              )}
             </div>
             <div>
-              <div className="flex mt-4  items-center">
+              <div className="flex mt-4 items-center">
                 <label className="md:text-lg font-bold" htmlFor="birthday">
                   Enter your Birthday :
                 </label>
@@ -148,15 +138,19 @@ export default function ReviewPage() {
                   onChange={formik.handleChange}
                 />
               </div>
+              {formik.errors.birthday && formik.touched.birthday && (
+                <div className="text-xs text-red-600 mt-1">
+                  {formik.errors.birthday}
+                </div>
+              )}
             </div>
             <div>
               <div className="flex  mt-10 justify-center">
                 <button
                   type="submit"
-                  className="  rounded-lg text-xl font-bold px-8 r py-2 mb-5"
-                  style={{ background: "#F59F00" }}
+                  className="rounded-lg text-lg shadow-sm  font-bold px-8 r py-2 mb-5 transition
+                   duration-300 ease-in-out bg-amber-500 hover:bg-orange-500"
                 >
-                  {" "}
                   SUBMIT
                 </button>
               </div>
