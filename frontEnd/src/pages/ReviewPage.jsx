@@ -7,19 +7,21 @@ import { toast } from "react-toastify";
 import reviewSchema from "../schemas/reviewSchema";
 import { rating, usageOptions, goalOptions } from "../constants/constant";
 export default function ReviewPage() {
-  
+  // Form submission handler
   const handleSubmit = async (values) => {
     try {
+      // Make API request to add review
       const response = await axios.post("http://localhost:3000/addReview", {
         ...values,
       });
       console.log("Response:", response);
     } catch (error) {
+      // Handle API request error
       toast.error("Server down please try after some time ");
       console.error("Error:", error);
     }
   };
-
+  // Formik hook for form management
   const formik = useFormik({
     initialValues: {
       usage: usageOptions[0],
@@ -30,11 +32,11 @@ export default function ReviewPage() {
     validationSchema: reviewSchema,
     onSubmit: handleSubmit,
   });
-
+  // Click handler for rating selection
   const handleRatingClick = (selectedRating) => {
     formik.setFieldValue("rating", selectedRating);
   };
-  console.log(formik.errors);
+
   return (
     <div className="w-full h-screen">
       <div className="flex justify-center  ">
