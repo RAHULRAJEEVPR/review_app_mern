@@ -1,5 +1,6 @@
 import React from "react";
 import { useFormik } from "formik";
+import {useNavigate} from "react-router-dom"
 import Select from "react-select";
 import logo from "../assets/logo.svg";
 import axios from "axios";
@@ -7,13 +8,18 @@ import { toast } from "react-toastify";
 import reviewSchema from "../schemas/reviewSchema";
 import { rating, usageOptions, goalOptions } from "../constants/constant";
 export default function ReviewPage() {
+  const navigate=useNavigate()
   // Form submission handler
   const handleSubmit = async (values) => {
     try {
+      console.log("keruninfo");
       // Make API request to add review
       const response = await axios.post("http://localhost:3000/addReview", {
         ...values,
       });
+      if(response){
+        navigate(`/result/${response.data.id}`)
+      }
       console.log("Response:", response);
     } catch (error) {
       // Handle API request error
@@ -24,7 +30,7 @@ export default function ReviewPage() {
   // Formik hook for form management
   const formik = useFormik({
     initialValues: {
-      usage: usageOptions[0],
+      usage: usageOptions[0].value,
       goals: [],
       rating: null,
       birthday: "",
@@ -58,12 +64,19 @@ export default function ReviewPage() {
                 How often do you use this app?
               </label>
               <Select
-                value={formik.values.usage}
+                value={{
+                  label: formik.values.usage,
+                  value: formik.values.usage,
+                }}
                 options={usageOptions}
-                onChange={(selectedOption) =>
-                  formik.setFieldValue("usage", selectedOption)
+                onChange={
+                  (selectedOption) =>
+                    formik.setFieldValue("usage", selectedOption.value) // use selectedOption.value
                 }
               />
+              {formik.errors.usage && formik.touched.usage && (
+                <p className="text-xs text-red-600">{formik.errors.usage}</p>
+              )}
             </div>
             <div className="flex flex-col mt-4">
               <label className="md:text-lg font-bold " htmlFor="goals">
@@ -73,9 +86,15 @@ export default function ReviewPage() {
                 isMulti
                 name="goals"
                 options={goalOptions}
-                value={formik.values.goals}
+                value={formik.values.goals.map((goal) => ({
+                  label: goal,
+                  value: goal,
+                }))}
                 onChange={(selectedOptions) =>
-                  formik.setFieldValue("goals", selectedOptions)
+                  formik.setFieldValue(
+                    "goals",
+                    selectedOptions.map((option) => option.value)
+                  )
                 }
               />
               {formik.errors.goals && formik.touched.goals && (
@@ -83,7 +102,10 @@ export default function ReviewPage() {
               )}
             </div>
             <div className="mt-4">
-              <h1 className=" md:text-lg font-bold  ">Rate User Experience </h1>
+              <h1 className=" md:text-lg font-bold  ">
+                Rate User Experience{" "}
+                <span className="text-slate-900 font-medium"> (1-10)</span>{" "}
+              </h1>
               <div className="grid grid-cols-10 gap-1 mt-2">
                 {rating.map((rate) => (
                   <div key={rate.label}>
@@ -150,7 +172,7 @@ export default function ReviewPage() {
               <div className="flex  mt-10 justify-center">
                 <button
                   type="submit"
-                  className="rounded-lg text-lg shadow-sm  font-bold px-8 r py-2 mb-5 transition
+                  className="rounded-lg text-lg shadow-sm  font-bold px-8 r py-2 mb-3 transition
                    duration-300 ease-in-out bg-amber-500 hover:bg-orange-500"
                 >
                   SUBMIT
