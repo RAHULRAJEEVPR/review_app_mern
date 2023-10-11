@@ -3,7 +3,6 @@ const reviewModel = require("../model/reviewModel");
 
 const addReview = async (req, res) => {
   try {
-    console.log(req.body);
     const { usage, goals, rating, suggestion, birthday } = req.body;
 
     const newReview = new reviewModel({
