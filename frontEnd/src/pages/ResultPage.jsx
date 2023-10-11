@@ -35,11 +35,9 @@ export default function ResultPage() {
     fetchData();
   }, [id]);
 
-  console.log(data);
   const { usage, goals, userExp, suggestion, birthday } = data;
   const formattedBirthday =
     birthday && new Date(birthday).toLocaleDateString("en-GB");
-  console.log(goals);
 
   return (
     <div className="w-full h-screen">

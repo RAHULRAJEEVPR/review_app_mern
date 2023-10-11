@@ -23,7 +23,6 @@ export default function ReviewPage() {
       if (response) {
         navigate(`/result/${response.data.id}`);
       }
-      console.log("Response:", response);
     } catch (error) {
       toast.error("Server down please try after some time ");
       console.error("Error:", error);
